@@ -2,8 +2,9 @@
 """
 Turn the six mannequin studio shots into a matched Oriki catalogue set.
 
-Sources live in public/wigs/source/{style}.png: a natural-black wig on an
-ivory mannequin head and espresso pole, front-on, on a flat cream background.
+Sources live in source-images/{style}.png, outside public/ so they are never
+deployed: a natural-black wig on an ivory mannequin head and espresso pole,
+front-on, on a flat cream background.
 
 For each source this script:
   1. cuts it out — rembg gives the primary matte (the ivory mannequin is
@@ -40,7 +41,7 @@ import numpy as np
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
-SOURCES = ROOT / "public" / "wigs" / "source"
+SOURCES = ROOT / "source-images"
 OUT = ROOT / "public" / "wigs"
 
 # product slug -> source style

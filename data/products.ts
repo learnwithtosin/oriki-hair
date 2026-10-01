@@ -155,7 +155,7 @@ function photoSet(slug: string): Record<ColourId, string> {
 }
 
 /**
- * Six units, one per studio photograph in public/wigs/source/. Every photo
+ * Six units, one per studio photograph in source-images/. Every photo
  * shows the wig in natural black; the other five colourways are generated.
  * The row order is the order on the page.
  */

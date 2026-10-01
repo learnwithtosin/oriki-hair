@@ -1,13 +1,23 @@
 "use client";
 
 import { useEffect } from "react";
-import { getProduct, type WigConfig } from "@/data/products";
+import { getProduct, type ColourId, type Product, type WigConfig } from "@/data/products";
 import { addToCart } from "@/lib/actions";
 import { closeWig, openWig } from "@/lib/navigation";
 import { useCart } from "@/store/cart";
 import { useShop } from "@/store/shop";
 
 const DEMO_PRODUCT = "adunni";
+
+/**
+ * Colourways that hold up in a recording. The demo opens on natural black (the
+ * untouched photo). Honey blonde only reads true on waves and curls, so it's
+ * left out for straight styles; ash grey is never shown.
+ */
+export function demoColours(product: Product): ColourId[] {
+  const wavyOrCurly = !!product.photoTexture && product.photoTexture !== "straight";
+  return ["dark-brown", "burgundy", "copper", ...(wavyOrCurly ? (["honey-blonde"] as const) : [])];
+}
 
 type Step =
   | { wait: number }
@@ -38,12 +48,7 @@ function script(): Step[] {
     { wait: 1000 },
     { set: { texture: "kinky-curly" } },
     { wait: 1200 },
-    { set: { colour: "burgundy" } },
-    { wait: 1000 },
-    { set: { colour: "copper" } },
-    { wait: 1000 },
-    { set: { colour: "honey-blonde" } },
-    { wait: 1100 },
+    ...demoColours(product).flatMap((colour): Step[] => [{ set: { colour } }, { wait: 1050 }]),
     { set: { cap: "large" } },
     { wait: 1000 },
     { run: () => addToCart(product, shop().config) },

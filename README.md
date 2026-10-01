@@ -43,7 +43,7 @@ Press **D** anywhere on the page, or click the faint `demo` text at the bottom r
 2. opens **Adunni**, which flies from its card into the configurator;
 3. changes length 24 → 30 → 16 → 20 inches;
 4. changes texture to body wave → deep wave → curly;
-5. changes colour to burgundy → copper → honey blonde, then cap size to large. The price rolls on every change that affects it;
+5. changes colour through the shades that hold up best on camera (dark brown → burgundy → copper, plus honey blonde on wavy and curly styles; never ash grey), then cap size to large. The price rolls on every change that affects it;
 6. adds to cart, opens the cart drawer, closes it, and returns the wig to its stand.
 
 One loop takes about 21 seconds and then repeats. Press **Esc** (or **D**) to stop. Your real cart is restored afterwards.
@@ -52,7 +52,7 @@ Recording tips: use a browser window at 1440×900 for desktop, or device emulati
 
 ## Product photos
 
-Six concept studio images (AI-generated, one per style) live in `public/wigs/source/{style}.png`: blunt bob, body wave, bone straight, deep wave, water wave and kinky curly. Each shows the wig in natural black on an ivory mannequin and espresso stand. From them, every product gets six colourways in `public/wigs/{product}-{colour}.webp`. They're wired up in [`data/products.ts`](data/products.ts) through the `images` map (colour → path):
+Six concept studio images (AI-generated, one per style) live in `source-images/{style}.png`, outside `public/` so they aren't deployed: blunt bob, body wave, bone straight, deep wave, water wave and kinky curly. Each shows the wig in natural black on an ivory mannequin and espresso stand. From them, every product gets six colourways in `public/wigs/{product}-{colour}.webp`. They're wired up in [`data/products.ts`](data/products.ts) through the `images` map (colour → path):
 
 ```ts
 {
@@ -122,7 +122,8 @@ components/     one concern per file (Hero, HairField, Collection, StandCard,
 data/           products, options, photos and pricing
 lib/            navigation (URL ⇄ open wig), wig geometry, seeded random,
                 formatting, WhatsApp link, motion
-public/wigs/    36 product images (6 products × 6 colours); source/ holds the 6 originals
+public/wigs/    36 product images (6 products × 6 colours)
+source-images/  the 6 original studio images the pipeline reads
 scripts/        photo pipeline: process_photos.py, requirements.txt
 store/          Zustand stores: cart (persisted to localStorage) and shop UI state
 ```

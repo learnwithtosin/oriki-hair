@@ -1,0 +1,8 @@
+# Never upload: local tooling, the photo pipeline's inputs, secrets
+.venv
+scripts
+source-images
+.env*
+!.env.example
+.next
+node_modules
