@@ -1,4 +1,4 @@
-import { describeConfig, getProduct } from "@/data/products";
+import { getCap, getColour, getLength, getProduct, getTexture } from "@/data/products";
 import type { CartItem } from "@/store/cart";
 import { formatNaira } from "./format";
 
@@ -13,25 +13,30 @@ export function cartSubtotal(items: CartItem[]): number {
 export function buildOrderMessage(items: CartItem[]): string {
   const lines = items.map((item, i) => {
     const name = getProduct(item.productId)?.name ?? item.productId;
-    const lineTotal = formatNaira(item.unitPrice * item.quantity);
+    const { config } = item;
     return [
       `${i + 1}. ${name}`,
-      `   ${describeConfig(item.config)}`,
-      `   Qty ${item.quantity} × ${formatNaira(item.unitPrice)} = ${lineTotal}`,
+      `   Length: ${getLength(config.length).label}`,
+      `   Texture: ${getTexture(config.texture).label}`,
+      `   Colour: ${getColour(config.colour).label}`,
+      `   Cap size: ${getCap(config.cap).label}`,
+      `   Qty: ${item.quantity}`,
+      `   Line total: ${formatNaira(item.unitPrice * item.quantity)}`,
     ].join("\n");
   });
 
   return [
     "Hello Oriki, I'd like to place an order:",
     "",
-    ...lines,
+    lines.join("\n\n"),
     "",
     `Total: ${formatNaira(cartSubtotal(items))}`,
     "",
-    "Please confirm availability and delivery to:",
+    "Please confirm availability and delivery cost.",
   ].join("\n");
 }
 
+/** Line breaks are kept as \n and survive encodeURIComponent as %0A. */
 export function buildWhatsAppLink(items: CartItem[]): string {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildOrderMessage(items))}`;
 }
