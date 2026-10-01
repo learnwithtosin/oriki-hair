@@ -45,3 +45,4 @@ next-env.d.ts
 .venv/
 scripts/models/
 scripts/.cache/
+__pycache__/

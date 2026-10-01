@@ -2,4 +2,3 @@ rembg[cpu]
 pillow
 numpy
 opencv-python-headless
-mediapipe
