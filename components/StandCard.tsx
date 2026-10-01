@@ -5,6 +5,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { products, startingPrice, type Product } from "@/data/products";
 import { formatNaira } from "@/lib/format";
 import { EASE } from "@/lib/motion";
+import { openWig } from "@/lib/navigation";
 import { useShop } from "@/store/shop";
 import { ProductFigure } from "./ProductFigure";
 
@@ -51,7 +52,6 @@ interface StandCardProps {
 
 export function StandCard({ product, index }: StandCardProps) {
   const [hovered, setHovered] = useState(false);
-  const open = useShop((s) => s.open);
   // Read from the store rather than props: while the row animates out it is a
   // retained element, and only subscribed components see the new focus.
   const lastActiveId = useShop((s) => s.lastActiveId);
@@ -86,7 +86,7 @@ export function StandCard({ product, index }: StandCardProps) {
       <button
         ref={buttonRef}
         type="button"
-        onClick={() => open(product.id)}
+        onClick={() => openWig(product.id)}
         onPointerEnter={(e) => e.pointerType === "mouse" && setHovered(true)}
         onPointerLeave={() => setHovered(false)}
         onFocus={() => setHovered(true)}

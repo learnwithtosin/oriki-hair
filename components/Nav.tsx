@@ -1,8 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import { EASE } from "@/lib/motion";
+import { closeWig } from "@/lib/navigation";
 import { cartCount, useCart } from "@/store/cart";
 import { useShop } from "@/store/shop";
 
@@ -15,6 +16,14 @@ const LINKS = [
 export function Nav() {
   const count = useCart((s) => cartCount(s.items));
   const setCartOpen = useShop((s) => s.setCartOpen);
+  const activeId = useShop((s) => s.activeId);
+
+  // With a wig open, "Collection" and the logo close it rather than just scrolling.
+  const leaveConfigurator = (scroll: "collection" | "top") => (e: MouseEvent<HTMLAnchorElement>) => {
+    if (!activeId) return;
+    e.preventDefault();
+    closeWig(scroll);
+  };
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -39,7 +48,7 @@ export function Nav() {
         aria-label="Primary"
         className="mx-auto flex h-14 max-w-[1440px] items-center justify-between px-5 md:h-[72px] md:px-10"
       >
-        <a href="#top" className="font-display text-[28px] leading-none tracking-[-0.03em] md:text-[34px]">
+        <a href="#top" onClick={leaveConfigurator("top")} className="font-display text-[28px] leading-none tracking-[-0.03em] md:text-[34px]">
           oriki
           <span className="sr-only"> Hair — home</span>
         </a>
@@ -49,6 +58,7 @@ export function Nav() {
             <li key={link.href}>
               <a
                 href={link.href}
+                onClick={link.href === "#collection" ? leaveConfigurator("collection") : undefined}
                 className="group relative text-[13px] tracking-[0.02em] text-ink/80 transition-colors hover:text-ink"
               >
                 {link.label}

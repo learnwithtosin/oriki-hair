@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { getProduct, type WigConfig } from "@/data/products";
 import { addToCart } from "@/lib/actions";
+import { closeWig, openWig } from "@/lib/navigation";
 import { useCart } from "@/store/cart";
 import { useShop } from "@/store/shop";
 
@@ -23,7 +24,7 @@ function script(): Step[] {
   return [
     { run: () => scrollToCollection() },
     { wait: 1100 },
-    { run: () => shop().open(DEMO_PRODUCT) },
+    { run: () => openWig(DEMO_PRODUCT, { replace: true }) },
     { wait: 1700 },
     { set: { length: 30 } },
     { wait: 1000 },
@@ -51,7 +52,7 @@ function script(): Step[] {
     { wait: 3000 },
     { run: () => shop().setCartOpen(false) },
     { wait: 900 },
-    { run: () => shop().close() },
+    { run: () => closeWig() },
     { wait: 1800 },
   ];
 }
@@ -77,7 +78,10 @@ export function DemoMode() {
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target)) return;
       if (e.key === "d" || e.key === "D") setDemo(!useShop.getState().demo);
-      if (e.key === "Escape" && useShop.getState().demo) setDemo(false);
+      if (e.key === "Escape" && useShop.getState().demo) {
+        e.preventDefault();
+        setDemo(false);
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -99,7 +103,7 @@ export function DemoMode() {
       const shop = useShop.getState();
       shop.setCartOpen(false);
       if (shop.activeId) {
-        shop.close();
+        closeWig();
         await wait(1200);
       }
       while (!cancelled) {

@@ -8,6 +8,13 @@ import { Configurator } from "./Configurator";
 import { RevealText } from "./RevealText";
 import { StandCard } from "./StandCard";
 
+/** A leaving row must never sit invisibly over the configurator and swallow clicks. */
+const rowVariants = {
+  away: { pointerEvents: "none" as const },
+  offstage: { pointerEvents: "auto" as const },
+  shown: { pointerEvents: "auto" as const },
+};
+
 /** The heading gets out of the way quickly so it never overlaps the configurator. */
 const headingVariants = {
   offstage: { opacity: 1 },
@@ -22,25 +29,30 @@ const headingVariants = {
  */
 export function Collection() {
   const activeId = useShop((s) => s.activeId);
+  const bootKey = useShop((s) => s.bootKey);
   const sectionRef = useRef<HTMLElement>(null);
   const [revealed, setRevealed] = useState(false);
   const active = activeId ? getProduct(activeId) : undefined;
 
-  // Keep the section framed whenever the view switches.
+  // Frame the right part of the page whenever the view switches.
   const firstRun = useRef(true);
   useEffect(() => {
     if (firstRun.current) {
       firstRun.current = false;
       return;
     }
+    const intent = useShop.getState().scrollIntent;
     const el = sectionRef.current;
-    if (!el) return;
+    if (!el || intent === "none") return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const behavior: ScrollBehavior = reduce || intent === "collection-instant" ? "instant" : "smooth";
+    if (intent === "top") {
+      window.scrollTo({ top: 0, behavior });
+      return;
+    }
     const navOffset = window.innerWidth >= 768 ? 72 : 56;
     const top = el.getBoundingClientRect().top - navOffset;
-    if (Math.abs(top) > 8) {
-      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      window.scrollTo({ top: window.scrollY + top, behavior: reduce ? "auto" : "smooth" });
-    }
+    if (Math.abs(top) > 8) window.scrollTo({ top: window.scrollY + top, behavior });
   }, [activeId]);
 
   return (
@@ -51,7 +63,7 @@ export function Collection() {
       className="relative min-h-[calc(100svh-56px)] scroll-mt-14 border-t border-rule md:min-h-[calc(100svh-72px)] md:scroll-mt-[72px]"
     >
       <LayoutGroup id="collection">
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence key={bootKey} mode="popLayout">
           {active ? (
             <motion.div key={`detail-${active.id}`} className="w-full">
               <Configurator product={active} />
@@ -66,6 +78,7 @@ export function Collection() {
               viewport={{ once: true, amount: 0.35 }}
               onViewportEnter={() => setRevealed(true)}
               exit="away"
+              variants={rowVariants}
             >
               <motion.div variants={headingVariants} className="mx-auto w-full max-w-[1440px] px-5 pt-14 md:px-10 md:pt-20">
                 <div className="grid gap-6 md:grid-cols-12 md:items-end">

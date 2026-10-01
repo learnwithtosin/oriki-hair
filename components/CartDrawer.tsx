@@ -27,7 +27,11 @@ export function CartDrawer() {
     // In demo mode a focus ring would end up in the recording.
     if (!useShop.getState().demo) closeRef.current?.focus({ preventScroll: true });
     const onKey = (e: globalThis.KeyboardEvent) => {
-      if (e.key === "Escape") setCartOpen(false);
+      if (e.key === "Escape") {
+        // Claim the key so the configurator underneath stays open.
+        e.preventDefault();
+        setCartOpen(false);
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => {
@@ -78,7 +82,7 @@ export function CartDrawer() {
             aria-modal="true"
             aria-labelledby="cart-title"
             onKeyDown={trapFocus}
-            className="fixed inset-y-0 right-0 z-50 flex w-full flex-col border-l border-rule bg-paper sm:w-[460px]"
+            className="fixed inset-y-0 right-0 z-50 flex w-[88vw] flex-col border-l border-rule bg-paper sm:w-[460px]"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}

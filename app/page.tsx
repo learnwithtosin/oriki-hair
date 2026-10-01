@@ -6,6 +6,7 @@ import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
 import { Nav } from "@/components/Nav";
 import { Providers } from "@/components/Providers";
+import { RouteSync } from "@/components/RouteSync";
 
 export default function Home() {
   return (
@@ -19,6 +20,7 @@ export default function Home() {
       <Footer />
       <CartDrawer />
       <DemoMode />
+      <RouteSync />
       <div className="grain" aria-hidden="true" />
     </Providers>
   );

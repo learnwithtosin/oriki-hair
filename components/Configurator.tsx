@@ -15,6 +15,7 @@ import {
   type Product,
 } from "@/data/products";
 import { formatNaira } from "@/lib/format";
+import { closeWig } from "@/lib/navigation";
 import { EASE } from "@/lib/motion";
 import { useShop } from "@/store/shop";
 import { AddToCartButton } from "./AddToCartButton";
@@ -36,7 +37,6 @@ const item = {
 export function Configurator({ product }: { product: Product }) {
   const config = useShop((s) => s.config);
   const setOption = useShop((s) => s.setOption);
-  const close = useShop((s) => s.close);
   const index = products.findIndex((p) => p.id === product.id) + 1;
 
   const length = getLength(config.length);
@@ -52,7 +52,7 @@ export function Configurator({ product }: { product: Product }) {
       >
         <button
           type="button"
-          onClick={close}
+          onClick={() => closeWig()}
           className="group flex items-center gap-2.5 text-[13px] text-ink/75 transition-colors hover:text-ink"
         >
           <span aria-hidden className="transition-transform duration-500 ease-house group-hover:-translate-x-1">

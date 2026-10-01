@@ -1,6 +1,9 @@
 import { create } from "zustand";
 import { getProduct, type WigConfig } from "@/data/products";
 
+/** Where the page should scroll after the view switches. */
+export type ScrollIntent = "collection" | "collection-instant" | "top" | "none";
+
 interface ShopState {
   /** Product open in the configurator, or null when the collection row is showing. */
   activeId: string | null;
@@ -11,9 +14,16 @@ interface ShopState {
   demo: boolean;
   /** Increments on every add-to-cart, so the button can play its confirmation. */
   addedTick: number;
+  scrollIntent: ScrollIntent;
+  /** Bumped when the page boots straight into a wig, to skip the row's exit. */
+  bootKey: number;
 
-  open: (id: string) => void;
-  close: () => void;
+  /**
+   * Low-level state changes. UI code should call `openWig` / `closeWig` from
+   * lib/navigation instead, which keep the URL and browser history in step.
+   */
+  open: (id: string, scroll?: ScrollIntent) => void;
+  close: (scroll?: ScrollIntent) => void;
   setOption: <K extends keyof WigConfig>(key: K, value: WigConfig[K]) => void;
   setCartOpen: (open: boolean) => void;
   setDemo: (demo: boolean) => void;
@@ -27,13 +37,22 @@ export const useShop = create<ShopState>()((set) => ({
   cartOpen: false,
   demo: false,
   addedTick: 0,
+  scrollIntent: "collection",
+  bootKey: 0,
 
-  open: (id) => {
+  open: (id, scroll = "collection") => {
     const product = getProduct(id);
     if (!product) return;
-    set({ activeId: id, lastActiveId: id, config: { ...product.defaults } });
+    set((s) => ({
+      activeId: id,
+      lastActiveId: id,
+      config: { ...product.defaults },
+      scrollIntent: scroll,
+      // Arriving by link/refresh there is no row to fly from: remount instead of exiting.
+      bootKey: scroll === "collection-instant" ? s.bootKey + 1 : s.bootKey,
+    }));
   },
-  close: () => set({ activeId: null }),
+  close: (scroll = "collection") => set({ activeId: null, scrollIntent: scroll }),
   setOption: (key, value) => set((s) => ({ config: { ...s.config, [key]: value } })),
   setCartOpen: (cartOpen) => set({ cartOpen }),
   setDemo: (demo) => set({ demo }),
