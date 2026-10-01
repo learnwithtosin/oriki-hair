@@ -55,12 +55,12 @@ export function OptionGroup<T extends string | number>({
   };
 
   return (
-    <div className="border-t border-rule pt-3.5 md:pt-4">
-      <div className="mb-2.5 flex items-baseline justify-between md:mb-3">
+    <div className="border-t border-rule pt-3 md:grid md:grid-cols-[8.5rem_1fr] md:items-center md:gap-4 md:py-3.5">
+      <div className="mb-2 flex items-baseline justify-between md:mb-0 md:block">
         <span id={`${name}-label`} className="eyebrow text-ink/60">
           {label}
         </span>
-        {readout && <span className="text-[12px] text-ink/60 tnum">{readout}</span>}
+        {readout && <span className="text-[12px] text-ink/55 tnum md:mt-1.5 md:block">{readout}</span>}
       </div>
       <div
         role="radiogroup"

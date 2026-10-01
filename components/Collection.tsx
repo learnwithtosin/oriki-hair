@@ -8,6 +8,13 @@ import { Configurator } from "./Configurator";
 import { RevealText } from "./RevealText";
 import { StandCard } from "./StandCard";
 
+/** The heading gets out of the way quickly so it never overlaps the configurator. */
+const headingVariants = {
+  offstage: { opacity: 1 },
+  away: { opacity: 0, transition: { duration: 0.3 } },
+  shown: { opacity: 1, transition: { duration: 0.7, delay: 0.3 } },
+};
+
 /**
  * The collection row and the configurator share this section. Switching
  * between them hands the chosen wig across with a shared layout animation
@@ -60,7 +67,7 @@ export function Collection() {
               onViewportEnter={() => setRevealed(true)}
               exit="away"
             >
-              <div className="mx-auto w-full max-w-[1440px] px-5 pt-14 md:px-10 md:pt-20">
+              <motion.div variants={headingVariants} className="mx-auto w-full max-w-[1440px] px-5 pt-14 md:px-10 md:pt-20">
                 <div className="grid gap-6 md:grid-cols-12 md:items-end">
                   <div className="md:col-span-7">
                     <p className="eyebrow text-gold">
@@ -77,7 +84,7 @@ export function Collection() {
                     Choose a unit, then make it yours — length, texture, colour and fit.
                   </p>
                 </div>
-              </div>
+              </motion.div>
 
               <ul className="no-scrollbar mt-10 flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-14 md:mx-auto md:mt-16 md:grid md:max-w-[1440px] md:grid-cols-6 md:gap-6 md:overflow-visible md:px-10 md:pb-24 lg:gap-8">
                 {products.map((product, index) => (

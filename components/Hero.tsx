@@ -14,7 +14,7 @@ export function Hero() {
       id="top"
       className="relative isolate flex min-h-svh flex-col overflow-hidden pt-14 md:pt-[72px]"
     >
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[50%] md:inset-y-0 md:left-auto md:right-0 md:h-auto md:w-[60%]">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[42%] [mask-image:linear-gradient(to_bottom,transparent,black_22%)] md:inset-y-0 md:left-auto md:right-0 md:h-auto md:w-[60%] md:[mask-image:linear-gradient(to_bottom,transparent_4%,black_26%)]">
         <HairField className="h-full w-full" />
       </div>
 

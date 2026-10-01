@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, type Variants } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { products, startingPrice, type Product } from "@/data/products";
 import { formatNaira } from "@/lib/format";
 import { EASE } from "@/lib/motion";
@@ -57,6 +57,13 @@ export function StandCard({ product, index }: StandCardProps) {
   const lastActiveId = useShop((s) => s.lastActiveId);
   const custom: StandCustom = { index, focus: products.findIndex((p) => p.id === lastActiveId) };
   const number = String(custom.index + 1).padStart(2, "0");
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  // Coming back from the configurator: return focus to the wig that was open.
+  useEffect(() => {
+    const { lastActiveId: last, activeId, demo } = useShop.getState();
+    if (last === product.id && !activeId && !demo) buttonRef.current?.focus({ preventScroll: true });
+  }, [product.id]);
 
   return (
     <motion.li
@@ -65,6 +72,7 @@ export function StandCard({ product, index }: StandCardProps) {
       className="w-[58vw] max-w-[260px] shrink-0 snap-center md:w-auto md:max-w-none md:shrink"
     >
       <button
+        ref={buttonRef}
         type="button"
         onClick={() => open(product.id)}
         onPointerEnter={(e) => e.pointerType === "mouse" && setHovered(true)}

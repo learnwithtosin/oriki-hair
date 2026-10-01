@@ -27,7 +27,7 @@ export function ProductVisual({
 }: ProductVisualProps) {
   if (product.image) {
     return (
-      <div className={`relative aspect-[400/520] ${className ?? ""}`}>
+      <div className={`relative aspect-[400/446] ${className ?? ""}`}>
         <Image
           src={product.image}
           alt={`${product.name} — ${product.tagline}`}
@@ -47,7 +47,7 @@ export function ProductVisual({
       seed={product.seed}
       parting={product.parting}
       sheen={sheen}
-      className={`block aspect-[400/520] w-full ${className ?? ""}`}
+      className={`block aspect-[400/446] w-full ${className ?? ""}`}
     />
   );
 }

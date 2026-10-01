@@ -65,9 +65,9 @@ export function Configurator({ product }: { product: Product }) {
         </span>
       </motion.div>
 
-      <div className="grid gap-4 pb-10 pt-4 md:grid-cols-12 md:gap-10 md:pb-16 md:pt-6">
+      <div className="grid gap-3 pb-10 pt-3 md:min-h-[calc(100svh-72px-57px)] md:grid-cols-12 md:gap-10 md:py-6">
         <div className="flex items-start justify-center md:col-span-6 md:items-center lg:col-span-7">
-          <div className="w-[44vw] max-w-[200px] md:w-[min(30vw,46vh)] md:max-w-[440px]">
+          <div className="w-[50vw] max-w-[220px] md:w-[min(36vw,60vh)] md:max-w-[520px]">
             <ProductFigure product={product} config={config} sheen priority />
           </div>
         </div>
@@ -83,22 +83,22 @@ export function Configurator({ product }: { product: Product }) {
             {product.construction}
           </motion.p>
           <motion.div variants={item} className="flex items-end justify-between gap-4 md:block">
-            <h2 className="font-display text-[44px] leading-[0.95] tracking-[-0.03em] md:mt-3 md:text-[clamp(3.5rem,5vw,4.75rem)]">
+            <h2 className="font-display text-[42px] leading-[0.95] tracking-[-0.03em] md:mt-3 md:text-[clamp(3.5rem,4.6vw,4.5rem)]">
               {product.name}
             </h2>
             <RollingPrice
               value={priceFor(product, config)}
-              className="pb-1 text-[22px] font-light tracking-[-0.01em] md:hidden"
+              className="pb-1 text-[21px] font-light tracking-[-0.01em] md:hidden"
             />
           </motion.div>
-          <motion.p variants={item} className="mt-1 font-display text-[19px] italic text-ink/70 md:mt-2 md:text-[22px]">
+          <motion.p variants={item} className="mt-2 hidden font-display text-[22px] italic text-ink/70 md:block">
             {product.tagline}
           </motion.p>
-          <motion.p variants={item} className="mt-4 hidden max-w-[34rem] text-[14px] leading-relaxed text-ink/65 lg:block">
+          <motion.p variants={item} className="mt-3 hidden max-w-[32rem] text-[14px] leading-relaxed text-ink/65 lg:block">
             {product.description}
           </motion.p>
 
-          <motion.div variants={item} className="mt-4 space-y-3 md:mt-7 md:space-y-4">
+          <motion.div variants={item} className="mt-3 space-y-2.5 md:mt-6 md:space-y-0 md:border-b md:border-rule">
             <OptionGroup
               name="length"
               label="Length"
@@ -127,14 +127,14 @@ export function Configurator({ product }: { product: Product }) {
             <OptionGroup
               name="cap"
               label="Cap size"
-              readout={`${getCap(config.cap).circumference} circumference`}
+              readout={getCap(config.cap).circumference}
               options={CAP_SIZES.map((c) => ({ value: c.value, label: c.label }))}
               value={config.cap}
               onChange={(v) => setOption("cap", v)}
             />
           </motion.div>
 
-          <motion.div variants={item} className="mt-5 border-t border-rule pt-4 md:mt-7 md:pt-6">
+          <motion.div variants={item} className="mt-4 border-t border-rule pt-4 md:mt-0 md:border-t-0 md:pt-5">
             <div className="hidden items-end justify-between gap-6 md:flex">
               <RollingPrice
                 value={priceFor(product, config)}
@@ -155,10 +155,10 @@ export function Configurator({ product }: { product: Product }) {
                 </div>
               </dl>
             </div>
-            <div className="md:mt-5">
+            <div className="md:mt-4">
               <AddToCartButton product={product} />
             </div>
-            <p className="mt-3 text-center text-[12px] text-ink/50 md:text-left">
+            <p className="mt-2.5 text-center text-[12px] text-ink/50 md:mt-3 md:text-left">
               Made to order in 5–7 days · Free fitting consultation
             </p>
           </motion.div>

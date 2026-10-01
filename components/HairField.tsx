@@ -17,6 +17,8 @@ interface FieldStrand {
   phase: number;
   speed: number;
   amp: number;
+  /** A resting S-curve, so strands flow rather than hang like string. */
+  bend: number;
   tone: 0 | 1 | 2;
 }
 
@@ -42,11 +44,12 @@ export function HairField({ className, count = 54 }: HairFieldProps) {
         // Denser towards the right edge, like a fall of hair entering the frame.
         x: 0.04 + Math.pow(t, 0.82) * 0.98,
         length: range(random, 0.72, 1.08),
-        width: roll < 0.18 ? range(random, 4, 7) : range(random, 0.7, 1.9),
-        opacity: roll < 0.18 ? range(random, 0.08, 0.16) : range(random, 0.35, 0.95),
+        width: roll < 0.14 ? range(random, 3, 5) : range(random, 0.7, 1.8),
+        opacity: roll < 0.14 ? range(random, 0.06, 0.12) : range(random, 0.35, 0.95),
         phase: random() * Math.PI * 2,
         speed: range(random, 0.7, 1.25),
-        amp: range(random, 14, 34),
+        amp: range(random, 16, 38),
+        bend: range(random, 18, 46) * (random() < 0.7 ? 1 : -1),
         tone: roll > 0.8 ? 2 : roll > 0.45 ? 1 : 0,
       };
     });
@@ -92,7 +95,8 @@ export function HairField({ className, count = 54 }: HairFieldProps) {
             Math.exp(-(dx * dx) / (2 * sigmaX * sigmaX)) *
             Math.exp(-((y - pointer.y) ** 2) / (2 * sigmaY * sigmaY)) *
             Math.min(1, p * 3);
-          const x = x0 + sway + lean * weight + part;
+          const curve = s.bend * Math.sin(p * Math.PI * 1.15) * Math.min(1, p * 2);
+          const x = x0 + curve + sway + lean * weight + part;
           if (j === 0) d = `M${r(x)} ${r(y)}`;
           else d += `Q${r(px)} ${r(py)} ${r((px + x) / 2)} ${r((py + y) / 2)}`;
           px = x;

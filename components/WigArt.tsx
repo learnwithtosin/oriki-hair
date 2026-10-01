@@ -17,10 +17,13 @@ import {
   HEAD,
   VIEW_H,
   VIEW_W,
+  VIEW_Y,
   capPath,
   cloneGeometry,
   computeGeometry,
   createStrandSeeds,
+  massBounds,
+  massPath,
   mixGeometry,
   strandPath,
   type WigGeometry,
@@ -53,6 +56,7 @@ export function WigArt({
   const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
   const reduceMotion = useReducedMotion();
   const seeds = useMemo(() => createStrandSeeds(seed), [seed]);
+  const bounds = useMemo(() => massBounds(seeds), [seeds]);
 
   // The first geometry is rendered by React (and on the server). Every later
   // change is animated imperatively so React never re-renders mid-morph.
@@ -61,6 +65,7 @@ export function WigArt({
   const strandEls = useRef<(SVGPathElement | null)[]>([]);
   const sheenEls = useRef<(SVGPathElement | null)[]>([]);
   const capEl = useRef<SVGPathElement>(null);
+  const massEls = useRef<(SVGPathElement | null)[]>([]);
   const gradientEls = useRef<(SVGLinearGradientElement | null)[]>([]);
   const shapeKey = useRef(`${length}|${texture}|${parting}`);
 
@@ -77,6 +82,7 @@ export function WigArt({
         sheenEls.current[i]?.setAttribute("d", d);
       }
       capEl.current?.setAttribute("d", capPath(g.cap));
+      bounds.forEach(([outer, inner], k) => massEls.current[k]?.setAttribute("d", massPath(g.strands, outer, inner)));
       const y2 = String(Math.round(g.tip));
       for (const el of gradientEls.current) el?.setAttribute("y2", y2);
     };
@@ -97,7 +103,7 @@ export function WigArt({
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [seeds, length, texture, parting, reduceMotion]);
+  }, [seeds, bounds, length, texture, parting, reduceMotion]);
 
   const shades = getColour(colour).shades;
   const tones = [
@@ -131,7 +137,7 @@ export function WigArt({
 
   return (
     <svg
-      viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+      viewBox={`0 ${VIEW_Y} ${VIEW_W} ${VIEW_H}`}
       className={className}
       role="img"
       aria-label={label}
@@ -170,15 +176,15 @@ export function WigArt({
               <stop offset="0.5" stopColor="#fff" stopOpacity="1" />
               <stop offset="0.7" stopColor="#fff" stopOpacity="0" />
             </linearGradient>
-            <mask id={`wig-${uid}-mask`} maskUnits="userSpaceOnUse" x="0" y="0" width={VIEW_W} height={VIEW_H}>
+            <mask id={`wig-${uid}-mask`} maskUnits="userSpaceOnUse" x="0" y={VIEW_Y} width={VIEW_W} height={VIEW_H}>
               <g className={reduceMotion ? undefined : "wig-sweep"}>
                 <rect
                   x={-VIEW_W}
-                  y="-60"
+                  y={VIEW_Y - 60}
                   width={VIEW_W * 3}
                   height={VIEW_H + 120}
                   fill={`url(#wig-${uid}-band)`}
-                  transform={`rotate(-18 ${VIEW_W / 2} ${VIEW_H / 2})`}
+                  transform={`rotate(-18 ${VIEW_W / 2} ${VIEW_Y + VIEW_H / 2})`}
                 />
               </g>
             </mask>
@@ -207,8 +213,21 @@ export function WigArt({
           opacity="0.7"
         />
         <ellipse cx={HEAD.cx} cy={HEAD.cy + 172} rx="40" ry="5" fill="#2a1b14" />
-        <rect x={HEAD.cx - 4} y={HEAD.cy + 172} width="8" height={VIEW_H} fill="#2a1b14" />
+        <rect x={HEAD.cx - 4} y={HEAD.cy + 172} width="8" height={VIEW_Y + VIEW_H} fill="#2a1b14" />
       </g>
+
+      {bounds.map(([outer, inner], k) => (
+        <path
+          key={k}
+          ref={(el) => {
+            massEls.current[k] = el;
+          }}
+          d={massPath(initial.strands, outer, inner)}
+          fill={`url(#${gid(1)})`}
+          opacity="0.82"
+          suppressHydrationWarning
+        />
+      ))}
 
       <motion.path
         ref={capEl}

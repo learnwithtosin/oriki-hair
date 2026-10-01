@@ -14,7 +14,9 @@ import type { LengthInches, Parting, TextureId } from "@/data/products";
 import { createRandom, range } from "./random";
 
 export const VIEW_W = 400;
-export const VIEW_H = 520;
+/** The canvas is cropped to where hair can actually reach. */
+export const VIEW_Y = 44;
+export const VIEW_H = 446;
 export const HEAD = { cx: 200, cy: 172, rx: 64, ry: 82 } as const;
 
 const ARC_POINTS = 12;
@@ -64,14 +66,14 @@ const TEXTURES: Record<TextureId, TextureParams> = {
 
 /** Visible fall below the widest point of the head for a given length. */
 export function fallLength(length: LengthInches) {
-  return 78 + ((length - 12) / 18) * 245;
+  return 78 + ((length - 12) / 18) * 218;
 }
 
 export function tipY(length: LengthInches, texture: TextureId) {
   return HEAD.cy + fallLength(length) * TEXTURES[texture].shrink + 14;
 }
 
-const COUNTS = { nape: 36, back: 34, front: 36 } as const;
+const COUNTS = { nape: 30, back: 40, front: 36 } as const;
 
 export function createStrandSeeds(seed: number): StrandSeed[] {
   const random = createRandom(seed * 9973 + 17);
@@ -95,7 +97,7 @@ export function createStrandSeeds(seed: number): StrandSeed[] {
         : range(random, 1.1, 2.2),
       opacity: range(random, 0.62, 1),
       tone,
-      lengthJitter: range(random, 0.94, 1.04),
+      lengthJitter: range(random, 0.88, 1.04),
       ampJitter: range(random, 0.75, 1.2),
       phase: random(),
       gap: range(random, 0.04, 0.1),
@@ -190,7 +192,8 @@ function writeStrand(s: StrandSeed, shape: WigShape, out: Float32Array, offset: 
   // Fall from the side of the head.
   const startX = HEAD.cx + s.side * e.rx;
   const startY = e.cy;
-  const f = Math.max(12, fall - (e.cy - (HEAD.cy - 2)));
+  // Front strands are cut slightly shorter, like face-framing layers.
+  const f = Math.max(12, fall * (1 - 0.07 * s.depth) - (e.cy - (HEAD.cy - 2)));
   const flare = (8 + 26 * (1 - s.depth)) * tex.flare * Math.min(1, f / 160);
   for (let j = 0; j < FALL_POINTS; j++) {
     const u = ((j + 1) / FALL_POINTS) * f;
@@ -259,6 +262,37 @@ export function strandPath(points: Float32Array, strandIndex: number): string {
   }
   d += `L${r(points[o + (n - 1) * 2])} ${r(points[o + (n - 1) * 2 + 1])}`;
   return d;
+}
+
+/**
+ * Indices of the strands that bound each side's hair mass: a back strand a
+ * little inside the silhouette, and the front strand at the hairline.
+ */
+export function massBounds(seeds: StrandSeed[]): [number, number][] {
+  return ([-1, 1] as const).map((side) => {
+    const back = seeds
+      .map((s, i) => ({ s, i }))
+      .filter(({ s }) => s.layer === "back" && s.side === side);
+    const front = seeds
+      .map((s, i) => ({ s, i }))
+      .filter(({ s }) => s.layer === "front" && s.side === side);
+    const outer = back.reduce((a, b) => (Math.abs(b.s.depth - 0.12) < Math.abs(a.s.depth - 0.12) ? b : a));
+    const inner = front.reduce((a, b) => (b.s.depth > a.s.depth ? b : a));
+    return [outer.i, inner.i];
+  });
+}
+
+/** Filled body of hair between two strands, so the fall reads as one mass. */
+export function massPath(points: Float32Array, outer: number, inner: number, cut = 0.72): string {
+  const end = Math.round((POINTS_PER_STRAND - 1) * cut);
+  const at = (strand: number, i: number) => {
+    const o = (strand * POINTS_PER_STRAND + i) * 2;
+    return `${r(points[o])} ${r(points[o + 1])}`;
+  };
+  let d = `M${at(outer, 0)}`;
+  for (let i = 1; i <= end; i++) d += `L${at(outer, i)}`;
+  for (let i = end; i >= 0; i--) d += `L${at(inner, i)}`;
+  return d + "Z";
 }
 
 export function capPath(points: Float32Array): string {
