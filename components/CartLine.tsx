@@ -5,6 +5,7 @@ import { describeConfig, getProduct } from "@/data/products";
 import { formatNaira } from "@/lib/format";
 import { EASE } from "@/lib/motion";
 import { useCart, type CartItem } from "@/store/cart";
+import { CARD_ZOOM } from "./ProductPhoto";
 import { ProductVisual } from "./ProductVisual";
 
 export function CartLine({ item, index }: { item: CartItem; index: number }) {
@@ -22,7 +23,7 @@ export function CartLine({ item, index }: { item: CartItem; index: number }) {
       className="flex gap-4 border-b border-rule py-5"
     >
       <div className="w-[72px] shrink-0 bg-ink/[0.035] px-1 pt-1">
-        <ProductVisual product={product} config={item.config} sheen={false} sizes="72px" />
+        <ProductVisual product={product} config={item.config} sheen={false} sizes="72px" zoom={CARD_ZOOM} />
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">

@@ -36,7 +36,7 @@ function script(): Step[] {
     { wait: 1000 },
     { set: { texture: "deep-wave" } },
     { wait: 1000 },
-    { set: { texture: "curly" } },
+    { set: { texture: "kinky-curly" } },
     { wait: 1200 },
     { set: { colour: "burgundy" } },
     { wait: 1000 },

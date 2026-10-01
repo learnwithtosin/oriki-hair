@@ -22,6 +22,7 @@ import { useShop } from "@/store/shop";
 import { AddToCartButton } from "./AddToCartButton";
 import { OptionGroup } from "./OptionGroup";
 import { ProductFigure } from "./ProductFigure";
+import { CARD_ZOOM } from "./ProductPhoto";
 import { RollingPrice } from "./RollingPrice";
 
 const panel = {
@@ -81,9 +82,9 @@ export function Configurator({ product }: { product: Product }) {
       </motion.div>
 
       <div className="grid gap-3 pb-10 pt-3 md:min-h-[calc(100svh-72px-57px)] md:grid-cols-12 md:gap-10 md:py-6">
-        <div className="flex items-start justify-center md:col-span-6 md:items-center lg:col-span-7">
-          <div className="w-[50vw] max-w-[220px] md:w-[min(36vw,60vh)] md:max-w-[520px]">
-            <ProductFigure product={product} config={config} sheen priority />
+        <div className="flex min-w-0 items-start justify-center md:col-span-6 md:items-center">
+          <div className="w-[46vw] max-w-[196px] md:w-[min(36vw,60vh)] md:max-w-[520px]">
+            <ProductFigure product={product} config={config} sheen priority fromZoom={CARD_ZOOM} />
             {/* Fixed height and absolutely placed, so the note never shifts the controls. */}
             <motion.div exit={{ opacity: 0, transition: { duration: 0.2 } }} className="relative mt-2.5 h-4 md:mt-4">
               <AnimatePresence mode="wait" initial={false}>
@@ -109,7 +110,7 @@ export function Configurator({ product }: { product: Product }) {
           initial="hidden"
           animate="shown"
           exit="exit"
-          className="flex flex-col md:col-span-6 md:justify-center lg:col-span-5"
+          className="flex min-w-0 flex-col md:col-span-6 md:justify-center"
         >
           <motion.p variants={item} className="eyebrow hidden text-gold md:block">
             {product.construction}

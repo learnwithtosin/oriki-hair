@@ -61,7 +61,8 @@ const TEXTURES: Record<TextureId, TextureParams> = {
   straight: { amp: 1.2, wavelength: 260, coherence: 1, coil: 0, shrink: 1, volume: 0, flare: 1, arcNoise: 0 },
   "body-wave": { amp: 10, wavelength: 118, coherence: 0.88, coil: 0, shrink: 0.97, volume: 5, flare: 1.3, arcNoise: 0.8 },
   "deep-wave": { amp: 8, wavelength: 56, coherence: 0.62, coil: 1.2, shrink: 0.92, volume: 9, flare: 1.6, arcNoise: 1.6 },
-  curly: { amp: 7.5, wavelength: 34, coherence: 0.08, coil: 4.6, shrink: 0.84, volume: 15, flare: 2.1, arcNoise: 2.6 },
+  "water-wave": { amp: 8.5, wavelength: 42, coherence: 0.3, coil: 2.6, shrink: 0.88, volume: 11, flare: 1.8, arcNoise: 2 },
+  "kinky-curly": { amp: 7.5, wavelength: 30, coherence: 0.08, coil: 4.6, shrink: 0.82, volume: 17, flare: 2.2, arcNoise: 2.8 },
 };
 
 /** Visible fall below the widest point of the head for a given length. */

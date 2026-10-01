@@ -8,6 +8,7 @@ import { EASE } from "@/lib/motion";
 import { openWig } from "@/lib/navigation";
 import { useShop } from "@/store/shop";
 import { ProductFigure } from "./ProductFigure";
+import { CARD_ZOOM } from "./ProductPhoto";
 
 export interface StandCustom {
   index: number;
@@ -94,7 +95,14 @@ export function StandCard({ product, index }: StandCardProps) {
         className="group block w-full text-left"
         aria-label={`${product.name}, ${product.tagline}, from ${formatNaira(startingPrice(product))}. Open configurator.`}
       >
-        <ProductFigure product={product} config={product.defaults} lifted={hovered} />
+        <ProductFigure
+          product={product}
+          config={product.defaults}
+          lifted={hovered}
+          zoom={CARD_ZOOM}
+          // The wig that just came back eases from the full view into the card crop.
+          fromZoom={custom.focus === custom.index ? 1 : CARD_ZOOM}
+        />
 
         <motion.div variants={captionVariants} custom={custom} className="relative mt-4 border-t border-rule pt-3">
           <span className="eyebrow tnum text-ink/45">No. {number}</span>

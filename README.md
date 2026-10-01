@@ -1,6 +1,6 @@
 # Oriki Hair
 
-A frontend-only e-commerce concept for **Oriki**, a fictional luxury wig atelier in Lagos. Each unit is shown in real photography, recoloured into six shades, and configured live: length, texture, colour and cap size. A procedurally drawn SVG wig stands in for any product or colour without a photo. Checkout hands off to WhatsApp, which is how many Nigerian boutiques actually sell.
+A frontend-only e-commerce concept for **Oriki**, a fictional luxury wig atelier in Lagos. Six units are shown as a matched studio set (a wig on an ivory mannequin and espresso stand), each recoloured into six shades and configured live: length, texture, colour and cap size. A procedurally drawn SVG wig stands in for any product or colour without a photo. Checkout hands off to WhatsApp, which is how many Nigerian boutiques actually sell.
 
 Built with Next.js (App Router), TypeScript, Tailwind CSS v4, Framer Motion and Zustand. There's no backend, database or paid service.
 
@@ -52,7 +52,7 @@ Recording tips: use a browser window at 1440×900 for desktop, or device emulati
 
 ## Product photos
 
-Every product has six photographed colourways in `public/wigs/{product}-{colour}.webp`. They're wired up in [`data/products.ts`](data/products.ts) through the `images` map (colour → path):
+Six concept studio images (AI-generated, one per style) live in `public/wigs/source/{style}.png`: blunt bob, body wave, bone straight, deep wave, water wave and kinky curly. Each shows the wig in natural black on an ivory mannequin and espresso stand. From them, every product gets six colourways in `public/wigs/{product}-{colour}.webp`. They're wired up in [`data/products.ts`](data/products.ts) through the `images` map (colour → path):
 
 ```ts
 {
@@ -65,36 +65,32 @@ Every product has six photographed colourways in `public/wigs/{product}-{colour}
 }
 ```
 
-[`components/ProductVisual.tsx`](components/ProductVisual.tsx) is the only place that decides how a wig is shown. If the selected colour has a photo, it shows it on a cream panel, cross-fading between colours. Otherwise it falls back to the procedural `<WigArt>` on its stand. Photos are used on collection cards, in the configurator and in cart thumbnails.
+[`components/ProductVisual.tsx`](components/ProductVisual.tsx) is the only place that decides how a wig is shown. If the selected colour has a photo, it shows it on a cream panel, cross-fading between colours. Otherwise it falls back to the procedural `<WigArt>` on its stand. Photos are used on collection cards and cart thumbnails (cropped in on the wig) and in the configurator (the whole mannequin and stand). When a card flies into the configurator, the crop eases out over the same 0.9s as the layout flight, so nothing jumps.
 
 The photos are honest about what they show:
 - **Colour** is a real recoloured photo.
 - **Length** gives a subtle scale (anchored at the bottom) plus the price change.
-- **Texture** changes the price and label only. If it differs from the photographed texture, a caption under the photo says so, e.g. "Pictured in straight — yours is made in curly."
+- **Texture** changes the price and label only. If it differs from the photographed texture, a caption under the photo says so, e.g. "Pictured in straight — yours is made in kinky curly."
 
 ### Regenerating the photos
 
-[`scripts/process_photos.py`](scripts/process_photos.py) builds everything from the sources listed in [`scripts/photos.json`](scripts/photos.json):
+[`scripts/process_photos.py`](scripts/process_photos.py) builds all 36 images from the six sources:
 
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -r scripts/requirements.txt
-.venv/bin/python scripts/process_photos.py --sheet review.png    # all products
-.venv/bin/python scripts/process_photos.py ewa                    # just one
+.venv/bin/python scripts/process_photos.py --sheet review.png   # all six
+.venv/bin/python scripts/process_photos.py adunni               # just one
 ```
 
-For each photo it:
-1. Downloads the source (cached in `scripts/.cache/`).
-2. Removes the background with **rembg**.
-3. Finds the hair with **MediaPipe**'s hair-segmentation class. rembg can't tell hair from skin on its own.
-4. Crops and pads onto a 1200×1500 transparent canvas.
-5. Recolours inside the hair mask only, in HSV. Hue is set to the target, saturation is scaled, and value is remapped so the photo's own shading and highlights survive.
+For each source it:
+1. **Cuts it out with rembg** as the primary matte. The ivory mannequin is almost the same colour as the cream backdrop, so colour distance alone would eat the head. Because the backdrop is one flat colour, a luminance matte rescues dark strands rembg drops; on its own, rembg lost half of the kinky-curly wig.
+2. **De-fringes the edges** by unmixing the known backdrop colour out of semi-transparent pixels, so no cream halo remains on any background.
+3. **Normalises framing.** Every wig-and-stand gets the same height, baseline and centre on a 1200×1500 canvas, using premultiplied Lanczos resampling so edges don't darken.
+4. **Builds a hair-only mask** of dark, neutral pixels. That excludes the ivory head, neck and lace, the whole base, and the warm-brown pole (below the neck only, so the parting stays hair).
+5. **Recolours with a luminosity gradient map.** It contrast-stretches the hair's luminance, then maps shadows to highlights through a per-colour ramp, keeping strand detail, speculars and root darkness. A soft root shadow goes on the lighter shades. Baby hairs painted over the lace count as part hair, part ivory, so they don't turn gold or pink.
 
-Each product's natural colour (`native` in the manifest) is exported untouched. The `--sheet` option writes a contact sheet of every colourway plus the hair mask, for review.
-
-Tuning lives in `COLOURWAYS` at the top of the script. Per-product overrides go in the manifest under `tune`. One lesson learned: lifting near-black hair to honey or copper always looked painted, so sources with mid-tone hair (brown, copper, burgundy) recolour best in both directions.
-
-Credits for every source photo are in [`public/wigs/CREDITS.md`](public/wigs/CREDITS.md). All are from Pexels under the Pexels License (free for commercial use). The images are served locally; nothing is hotlinked.
+Natural black is the normalised original, untouched. Ramps and tone settings are in `RAMPS` and `TONE` at the top of the script. `--sheet` writes a contact sheet of every colourway plus the hair mask, for review.
 
 ## Shareable URLs
 
@@ -126,8 +122,8 @@ components/     one concern per file (Hero, HairField, Collection, StandCard,
 data/           products, options, photos and pricing
 lib/            navigation (URL ⇄ open wig), wig geometry, seeded random,
                 formatting, WhatsApp link, motion
-public/wigs/    36 product photos (6 products × 6 colours) and CREDITS.md
-scripts/        photo pipeline: process_photos.py, photos.json, requirements.txt
+public/wigs/    36 product images (6 products × 6 colours); source/ holds the 6 originals
+scripts/        photo pipeline: process_photos.py, requirements.txt
 store/          Zustand stores: cart (persisted to localStorage) and shop UI state
 ```
 
@@ -139,8 +135,9 @@ Every strand has the same number of points in every configuration, so changing l
 
 ## Decisions made along the way
 
-- **Fictional brand, real voice.** Product names are Yoruba given names, which fits the oriki ("praise name") concept. The footer says "Concept design" and credits the photos.
-- **Pricing** applies add-ons for length and texture only, as briefed. Colour and cap size are free to change.
+- **Fictional brand, real voice.** Product names are Yoruba given names, which fits the oriki ("praise name") concept. The footer says "Concept imagery" and "Concept design"; the studio images are AI-generated.
+- **Pricing** applies add-ons for length and texture only, as briefed. Colour and cap size are free to change. Lengths run 12–30" (including 22", 26" and 28" so each unit's natural length is an option), and textures are straight, body wave, deep wave, water wave and kinky curly.
+- **Phones.** Option rows with many choices scroll sideways on one line instead of wrapping, so the photo, every control and Add to cart fit on a 390×844 screen.
 - **"Cart" vs "Bag".** Desktop says "Cart". The nav says "Bag" on narrow screens to save space.
 - **Hover labels.** On desktop, stand names and prices reveal on hover or keyboard focus. On touch screens they're always visible.
 - **Cart persistence.** The cart is saved to `localStorage` and rehydrated after mount to avoid hydration mismatches.

@@ -11,6 +11,8 @@ interface ProductVisualProps {
   sheen?: boolean;
   sizes?: string;
   priority?: boolean;
+  zoom?: number;
+  fromZoom?: number;
 }
 
 /** The photo for the selected colour, if one exists. */
@@ -29,6 +31,8 @@ export function ProductVisual({
   sheen,
   sizes = "(max-width: 768px) 60vw, 520px",
   priority,
+  zoom,
+  fromZoom,
 }: ProductVisualProps) {
   const src = photoFor(product, config);
   if (src) {
@@ -40,6 +44,8 @@ export function ProductVisual({
         sizes={sizes}
         priority={priority}
         className={className}
+        zoom={zoom}
+        fromZoom={fromZoom}
       />
     );
   }

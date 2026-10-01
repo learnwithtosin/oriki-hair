@@ -66,15 +66,7 @@ export function Footer() {
         </p>
 
         <div className="mt-6 flex flex-col gap-3 border-t border-paper/15 pt-6 text-[12px] text-paper/45 md:flex-row md:items-center md:justify-between">
-          <p>
-            © 2026 Oriki Hair · Concept design — Oriki is a fictional brand. ·{" "}
-            <a
-              href="/wigs/CREDITS.md"
-              className="underline decoration-paper/20 underline-offset-4 transition-colors hover:text-paper/80"
-            >
-              Photos: Pexels
-            </a>
-          </p>
+          <p>© 2026 Oriki Hair · Concept imagery · Concept design — Oriki is a fictional brand.</p>
           <div className="flex items-center gap-6">
             <p>Prices in naira, VAT included.</p>
             <button

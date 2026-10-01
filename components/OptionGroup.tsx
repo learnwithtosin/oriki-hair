@@ -66,7 +66,12 @@ export function OptionGroup<T extends string | number>({
         role="radiogroup"
         aria-labelledby={`${name}-label`}
         onKeyDown={onKeyDown}
-        className={variant === "swatch" ? "flex flex-wrap gap-3.5 md:gap-4" : "-ml-1 flex flex-wrap gap-0.5 md:gap-1"}
+        className={
+          variant === "swatch"
+            ? "flex flex-wrap gap-3.5 md:gap-4"
+            : // Phones: one swipeable line, edge to edge, so the configurator never grows taller.
+              "no-scrollbar -mx-5 flex gap-0.5 overflow-x-auto px-4 md:mx-0 md:-ml-1 md:flex-wrap md:gap-1 md:overflow-visible md:px-0"
+        }
       >
         {options.map((option, i) => {
           const selected = i === selectedIndex;
@@ -85,7 +90,7 @@ export function OptionGroup<T extends string | number>({
               className={
                 variant === "swatch"
                   ? "relative flex h-8 w-8 items-center justify-center rounded-full focus-visible:outline-offset-[7px] md:h-9 md:w-9"
-                  : `relative h-9 rounded-full px-3.5 text-[13px] transition-colors duration-500 md:h-10 md:px-4 md:text-[14px] ${
+                  : `relative h-9 shrink-0 whitespace-nowrap rounded-full px-2 text-[13px] transition-colors duration-500 sm:px-3 md:h-10 md:px-3 md:text-[14px] xl:px-3.5 ${
                       selected ? "text-ink" : "text-ink/50 hover:text-ink"
                     }`
               }

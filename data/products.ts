@@ -8,8 +8,8 @@
  * Photos are produced by scripts/process_photos.py.
  */
 
-export type LengthInches = 12 | 16 | 20 | 24 | 30;
-export type TextureId = "straight" | "body-wave" | "deep-wave" | "curly";
+export type LengthInches = 12 | 16 | 20 | 22 | 24 | 26 | 28 | 30;
+export type TextureId = "straight" | "body-wave" | "deep-wave" | "water-wave" | "kinky-curly";
 export type ColourId =
   | "natural-black"
   | "dark-brown"
@@ -80,7 +80,10 @@ export const LENGTHS: LengthOption[] = [
   { value: 12, label: '12"', addOn: 0 },
   { value: 16, label: '16"', addOn: 35_000 },
   { value: 20, label: '20"', addOn: 75_000 },
+  { value: 22, label: '22"', addOn: 95_000 },
   { value: 24, label: '24"', addOn: 120_000 },
+  { value: 26, label: '26"', addOn: 145_000 },
+  { value: 28, label: '28"', addOn: 175_000 },
   { value: 30, label: '30"', addOn: 210_000 },
 ];
 
@@ -88,7 +91,8 @@ export const TEXTURES: TextureOption[] = [
   { value: "straight", label: "Straight", addOn: 0 },
   { value: "body-wave", label: "Body wave", addOn: 15_000 },
   { value: "deep-wave", label: "Deep wave", addOn: 25_000 },
-  { value: "curly", label: "Curly", addOn: 30_000 },
+  { value: "water-wave", label: "Water wave", addOn: 30_000 },
+  { value: "kinky-curly", label: "Kinky curly", addOn: 35_000 },
 ];
 
 export const COLOURS: ColourOption[] = [
@@ -150,90 +154,95 @@ function photoSet(slug: string): Record<ColourId, string> {
   return Object.fromEntries(COLOUR_IDS.map((c) => [c, `/wigs/${slug}-${c}.webp`])) as Record<ColourId, string>;
 }
 
+/**
+ * Six units, one per studio photograph in public/wigs/source/. Every photo
+ * shows the wig in natural black; the other five colourways are generated.
+ * The row order is the order on the page.
+ */
 export const products: Product[] = [
   {
-    id: "ewa",
-    images: photoSet("ewa"),
-    photoTexture: "body-wave",
-    name: "Ewa",
-    tagline: "The everyday body wave",
-    construction: "4×4 lace closure",
-    description:
-      "Soft movement that settles the moment you shake it out. Ewa is the unit our clients reach for on a Tuesday — easy to install, forgiving in humidity.",
-    basePrice: 85_000,
-    seed: 7,
-    parting: "middle",
-    defaults: { length: 16, texture: "body-wave", colour: "dark-brown", cap: "medium" },
-  },
-  {
     id: "ayomide",
+    name: "Ayomide",
+    tagline: "The blunt bob",
+    construction: "5×5 HD lace closure",
+    description:
+      "A jaw-skimming bob cut to one clean line, with a middle part that stays put. Light on the head, sharp in every photo, and the easiest unit we make to wear every day.",
+    basePrice: 85_000,
     images: photoSet("ayomide"),
     photoTexture: "straight",
-    name: "Ayomide",
-    tagline: "Raw full lace, cut blunt",
-    construction: "Full lace, raw Vietnamese hair",
-    description:
-      "A sharp jaw-length bob in raw, single-donor hair. Every strand is hand-tied to Swiss lace, so it parts anywhere and lies flat everywhere.",
-    basePrice: 450_000,
     seed: 23,
-    parting: "side",
-    defaults: { length: 12, texture: "straight", colour: "ash-grey", cap: "small" },
+    parting: "middle",
+    defaults: { length: 12, texture: "straight", colour: "natural-black", cap: "medium" },
+  },
+  {
+    id: "ewa",
+    name: "Ewa",
+    tagline: "Soft body wave",
+    construction: "13×4 HD lace frontal",
+    description:
+      "Loose, swinging waves that fall from the cheekbone and settle the moment you shake them out. Twenty-six inches of movement that forgives Lagos humidity.",
+    basePrice: 120_000,
+    images: photoSet("ewa"),
+    photoTexture: "body-wave",
+    seed: 7,
+    parting: "middle",
+    defaults: { length: 26, texture: "body-wave", colour: "natural-black", cap: "medium" },
   },
   {
     id: "adunni",
-    images: photoSet("adunni"),
-    photoTexture: "straight",
     name: "Adunni",
     tagline: "Bone straight, glass finish",
     construction: "13×4 HD lace frontal",
     description:
-      "Our signature. Long, weighty, and so straight it catches light like lacquer. The HD frontal melts into every skin tone without tinting.",
+      "Our signature. Twenty-eight inches, weighty and so straight it catches light like lacquer. The HD frontal melts into every skin tone without tinting.",
     basePrice: 165_000,
+    images: photoSet("adunni"),
+    photoTexture: "straight",
     seed: 41,
     parting: "middle",
-    defaults: { length: 24, texture: "straight", colour: "natural-black", cap: "medium" },
+    defaults: { length: 28, texture: "straight", colour: "natural-black", cap: "medium" },
   },
   {
     id: "morenike",
+    name: "Morenike",
+    tagline: "Defined deep wave",
+    construction: "13×4 HD lace frontal",
+    description:
+      "Glossy, rope-like waves set from the crown to the ends, each one the same depth as the last. Holds its pattern for days with nothing but water and a little mousse.",
+    basePrice: 175_000,
     images: photoSet("morenike"),
     photoTexture: "deep-wave",
-    name: "Morenike",
-    tagline: "Deep wave in wine",
-    construction: "5×5 HD lace closure",
-    description:
-      "Defined, glossy waves dyed by hand in a deep wine that turns almost black indoors and ripe plum in the sun.",
-    basePrice: 210_000,
     seed: 58,
-    parting: "side",
-    defaults: { length: 20, texture: "deep-wave", colour: "burgundy", cap: "medium" },
-  },
-  {
-    id: "folake",
-    images: photoSet("folake"),
-    photoTexture: "curly",
-    name: "Folake",
-    tagline: "Copper curls, glueless",
-    construction: "Glueless 6×6 lace closure",
-    description:
-      "Springy, full-bodied curls in a warm copper. Pre-plucked, pre-bleached and fitted with an elastic band, so it goes on in minutes without adhesive.",
-    basePrice: 245_000,
-    seed: 77,
     parting: "middle",
-    defaults: { length: 16, texture: "curly", colour: "copper", cap: "medium" },
+    defaults: { length: 24, texture: "deep-wave", colour: "natural-black", cap: "medium" },
   },
   {
     id: "titilayo",
-    images: photoSet("titilayo"),
-    photoTexture: "body-wave",
     name: "Titilayo",
-    tagline: "Honey, worn long",
+    tagline: "Wet-look water wave",
     construction: "13×6 HD lace frontal",
     description:
-      "Thirty inches of honey-blonde body wave, lifted at the root and toned to stay warm. The unit for the wedding, the shoot, the entrance.",
-    basePrice: 320_000,
+      "Loose, ribboned curls with a just-out-of-the-sea texture. Spray it damp and the pattern springs straight back; leave it dry for softer volume.",
+    basePrice: 195_000,
+    images: photoSet("titilayo"),
+    photoTexture: "water-wave",
     seed: 93,
     parting: "middle",
-    defaults: { length: 30, texture: "body-wave", colour: "honey-blonde", cap: "large" },
+    defaults: { length: 22, texture: "water-wave", colour: "natural-black", cap: "medium" },
+  },
+  {
+    id: "folake",
+    name: "Folake",
+    tagline: "Kinky curly, full volume",
+    construction: "13×4 HD lace, kinky edges",
+    description:
+      "Tight, springy coils with the density of natural 4B hair and kinky baby hairs at the lace, so the hairline reads as your own. Big, round and twenty inches long.",
+    basePrice: 210_000,
+    images: photoSet("folake"),
+    photoTexture: "kinky-curly",
+    seed: 77,
+    parting: "middle",
+    defaults: { length: 20, texture: "kinky-curly", colour: "natural-black", cap: "medium" },
   },
 ];
 
