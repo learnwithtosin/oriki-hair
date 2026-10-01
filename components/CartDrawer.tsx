@@ -24,7 +24,8 @@ export function CartDrawer() {
     const root = document.documentElement;
     const overflow = root.style.overflow;
     root.style.overflow = "hidden";
-    closeRef.current?.focus({ preventScroll: true });
+    // In demo mode a focus ring would end up in the recording.
+    if (!useShop.getState().demo) closeRef.current?.focus({ preventScroll: true });
     const onKey = (e: globalThis.KeyboardEvent) => {
       if (e.key === "Escape") setCartOpen(false);
     };

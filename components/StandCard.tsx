@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, type Variants } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { products, startingPrice, type Product } from "@/data/products";
 import { formatNaira } from "@/lib/format";
 import { EASE } from "@/lib/motion";
@@ -59,7 +59,19 @@ export function StandCard({ product, index }: StandCardProps) {
   const number = String(custom.index + 1).padStart(2, "0");
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  // Coming back from the configurator: return focus to the wig that was open.
+  // Coming back from the configurator: centre this stand in the mobile
+  // scroller before the shared layout animation measures where to land.
+  useLayoutEffect(() => {
+    const { lastActiveId: last, activeId } = useShop.getState();
+    const li = buttonRef.current?.parentElement;
+    const row = li?.parentElement;
+    if (last !== product.id || activeId || !li || !row) return;
+    if (row.scrollWidth > row.clientWidth) {
+      row.scrollLeft = li.offsetLeft - row.offsetLeft - (row.clientWidth - li.offsetWidth) / 2;
+    }
+  }, [product.id]);
+
+  // …and return focus to it.
   useEffect(() => {
     const { lastActiveId: last, activeId, demo } = useShop.getState();
     if (last === product.id && !activeId && !demo) buttonRef.current?.focus({ preventScroll: true });

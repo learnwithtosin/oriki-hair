@@ -37,7 +37,7 @@ export interface WigArtProps {
   seed: number;
   parting?: Parting;
   className?: string;
-  /** Plays the slow highlight sweep. Off for thumbnails. */
+  /** Plays the slow highlight sweep — reserved for the configurator's hero wig. */
   sheen?: boolean;
 }
 
@@ -51,7 +51,7 @@ export function WigArt({
   seed,
   parting = "middle",
   className,
-  sheen = true,
+  sheen = false,
 }: WigArtProps) {
   const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
   const reduceMotion = useReducedMotion();
