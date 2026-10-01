@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Python virtualenv for scripts/process_photos.py
+    ".venv/**",
   ]),
 ]);
 

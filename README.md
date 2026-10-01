@@ -1,6 +1,6 @@
 # Oriki Hair
 
-A frontend-only e-commerce concept for **Oriki**, a fictional luxury wig atelier in Lagos. Every wig is drawn procedurally in SVG and configured live: length, texture, colour and cap size. Checkout hands off to WhatsApp, which is how many Nigerian boutiques actually sell.
+A frontend-only e-commerce concept for **Oriki**, a fictional luxury wig atelier in Lagos. Each unit is shown in real photography, recoloured into six shades, and configured live: length, texture, colour and cap size. A procedurally drawn SVG wig stands in for any product or colour without a photo. Checkout hands off to WhatsApp, which is how many Nigerian boutiques actually sell.
 
 Built with Next.js (App Router), TypeScript, Tailwind CSS v4, Framer Motion and Zustand. There's no backend, database or paid service.
 
@@ -24,20 +24,23 @@ npm start
 | --- | --- | --- |
 | `NEXT_PUBLIC_WHATSAPP_NUMBER` | `2340000000000` | Number the "Order on WhatsApp" link opens. International format, digits only (e.g. `2348012345678`). Spaces and `+` are stripped. |
 
-Create `.env.local` locally, or set it in your Vercel project settings:
+Copy the example and fill in your number. `.env.local` is git-ignored, so the number never gets committed:
 
 ```bash
-NEXT_PUBLIC_WHATSAPP_NUMBER=2348012345678
+cp .env.example .env.local
+# then edit: NEXT_PUBLIC_WHATSAPP_NUMBER=2348012345678
 ```
 
-The link is built as `https://wa.me/<number>?text=<message>`. The message is URL-encoded and lists each item, its options, the quantity, the line totals and the order total in naira.
+On Vercel, set it under **Project → Settings → Environment Variables**. It's read at build time, so redeploy after changing it.
+
+The link is built as `https://wa.me/<number>?text=<message>`. The message is assembled with `\n` line breaks and URL-encoded once. Each item gets its own lines for name, length, texture, colour, cap size, quantity and line total. The message ends with the order total and "Please confirm availability and delivery cost."
 
 ## Demo mode (for screen recordings)
 
 Press **D** anywhere on the page, or click the faint `demo` text at the bottom right of the footer. The loop:
 
 1. hides the cursor and scrolls to the collection;
-2. opens **Adunni**, which flies from its stand into the configurator;
+2. opens **Adunni**, which flies from its card into the configurator;
 3. changes length 24 → 30 → 16 → 20 inches;
 4. changes texture to body wave → deep wave → curly;
 5. changes colour to burgundy → copper → honey blonde, then cap size to large. The price rolls on every change that affects it;
@@ -47,25 +50,60 @@ One loop takes about 21 seconds and then repeats. Press **Esc** (or **D**) to st
 
 Recording tips: use a browser window at 1440×900 for desktop, or device emulation at 390×844 for TikTok/Reels. Start recording, then press D.
 
-## Swapping in real product photos
+## Product photos
 
-All product data lives in [`data/products.ts`](data/products.ts). To use photography for a unit:
+Every product has six photographed colourways in `public/wigs/{product}-{colour}.webp`. They're wired up in [`data/products.ts`](data/products.ts) through the `images` map (colour → path):
 
-1. Put the image in `public/products/`. A transparent PNG or WebP framed at roughly 400×446 works best.
-2. Add an `image` field to that product:
+```ts
+{
+  id: "adunni",
+  images: {
+    "natural-black": "/wigs/adunni-natural-black.webp",
+    // … one per colour; photoSet("adunni") fills all six
+  },
+  photoTexture: "straight", // what the photo actually shows
+}
+```
 
-   ```ts
-   {
-     id: "adunni",
-     name: "Adunni",
-     image: "/products/adunni.png",
-     // ...
-   }
-   ```
+[`components/ProductVisual.tsx`](components/ProductVisual.tsx) is the only place that decides how a wig is shown. If the selected colour has a photo, it shows it on a cream panel, cross-fading between colours. Otherwise it falls back to the procedural `<WigArt>` on its stand. Photos are used on collection cards, in the configurator and in cart thumbnails.
 
-That's all. [`components/ProductVisual.tsx`](components/ProductVisual.tsx) is the only place that decides how a wig is shown. It renders the photo with `next/image` when `image` is set and falls back to the procedural `<WigArt>` otherwise. The photo is used everywhere: collection, configurator and cart. It won't restyle itself when options change, so you may want one photo per colour later.
+The photos are honest about what they show:
+- **Colour** is a real recoloured photo.
+- **Length** gives a subtle scale (anchored at the bottom) plus the price change.
+- **Texture** changes the price and label only. If it differs from the photographed texture, a caption under the photo says so, e.g. "Pictured in straight — yours is made in curly."
 
-Pricing is also in the data file: `basePrice` per product plus `addOn` per length and per texture (`priceFor()`).
+### Regenerating the photos
+
+[`scripts/process_photos.py`](scripts/process_photos.py) builds everything from the sources listed in [`scripts/photos.json`](scripts/photos.json):
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r scripts/requirements.txt
+.venv/bin/python scripts/process_photos.py --sheet review.png    # all products
+.venv/bin/python scripts/process_photos.py ewa                    # just one
+```
+
+For each photo it:
+1. Downloads the source (cached in `scripts/.cache/`).
+2. Removes the background with **rembg**.
+3. Finds the hair with **MediaPipe**'s hair-segmentation class. rembg can't tell hair from skin on its own.
+4. Crops and pads onto a 1200×1500 transparent canvas.
+5. Recolours inside the hair mask only, in HSV. Hue is set to the target, saturation is scaled, and value is remapped so the photo's own shading and highlights survive.
+
+Each product's natural colour (`native` in the manifest) is exported untouched. The `--sheet` option writes a contact sheet of every colourway plus the hair mask, for review.
+
+Tuning lives in `COLOURWAYS` at the top of the script. Per-product overrides go in the manifest under `tune`. One lesson learned: lifting near-black hair to honey or copper always looked painted, so sources with mid-tone hair (brown, copper, burgundy) recolour best in both directions.
+
+Credits for every source photo are in [`public/wigs/CREDITS.md`](public/wigs/CREDITS.md). All are from Pexels under the Pexels License (free for commercial use). The images are served locally; nothing is hotlinked.
+
+## Shareable URLs
+
+The open wig lives in the URL: `/?wig=adunni`.
+- **Refresh and shared links** open straight into the configurator.
+- **Every way out** (Back to collection, the nav's Collection link, the logo, Escape, the browser's Back button) goes through one `closeWig()` in [`lib/navigation.ts`](lib/navigation.ts). It steps back through history when the site created the entry, so browser Back and Forward behave like the on-page controls.
+- **Escape** closes the innermost layer first: cart drawer, then configurator.
+
+Pricing is in the data file too: `basePrice` per product plus `addOn` per length and per texture (`priceFor()`).
 
 ## Deploy to Vercel
 
@@ -81,11 +119,15 @@ Or from the CLI: `npx vercel` then `npx vercel --prod`.
 ```
 app/            layout (fonts, metadata), page, global styles, icon
 components/     one concern per file (Hero, HairField, Collection, StandCard,
-                ProductFigure, ProductVisual, WigArt, Configurator, OptionGroup,
-                RollingPrice, AddToCartButton, CartDrawer, CartLine, Care,
-                Footer, Nav, DemoMode, MagneticButton, RevealText, Providers)
-data/           products, options and pricing
-lib/            wig geometry, seeded random, formatting, WhatsApp link, motion
+                ProductFigure, ProductVisual, ProductPhoto, WigArt, Configurator,
+                OptionGroup, RollingPrice, AddToCartButton, CartDrawer, CartLine,
+                Care, Footer, Nav, DemoMode, RouteSync, MagneticButton,
+                RevealText, Providers)
+data/           products, options, photos and pricing
+lib/            navigation (URL ⇄ open wig), wig geometry, seeded random,
+                formatting, WhatsApp link, motion
+public/wigs/    36 product photos (6 products × 6 colours) and CREDITS.md
+scripts/        photo pipeline: process_photos.py, photos.json, requirements.txt
 store/          Zustand stores: cart (persisted to localStorage) and shop UI state
 ```
 
@@ -97,7 +139,7 @@ Every strand has the same number of points in every configuration, so changing l
 
 ## Decisions made along the way
 
-- **Fictional brand, real voice.** Product names are Yoruba given names, which fits the oriki ("praise name") concept. The footer states clearly that it's a design concept.
+- **Fictional brand, real voice.** Product names are Yoruba given names, which fits the oriki ("praise name") concept. The footer says "Concept design" and credits the photos.
 - **Pricing** applies add-ons for length and texture only, as briefed. Colour and cap size are free to change.
 - **"Cart" vs "Bag".** Desktop says "Cart". The nav says "Bag" on narrow screens to save space.
 - **Hover labels.** On desktop, stand names and prices reveal on hover or keyboard focus. On touch screens they're always visible.

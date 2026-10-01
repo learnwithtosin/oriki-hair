@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect } from "react";
 import {
   CAP_SIZES,
   COLOURS,
@@ -41,6 +42,20 @@ export function Configurator({ product }: { product: Product }) {
 
   const length = getLength(config.length);
   const texture = getTexture(config.texture);
+  // Photos show one texture; say so honestly rather than pretend otherwise.
+  const pictured = product.photoTexture && product.images?.[config.colour] ? product.photoTexture : null;
+  const textureNote =
+    pictured && pictured !== config.texture
+      ? `Pictured in ${getTexture(pictured).label.toLowerCase()} — yours is made in ${texture.label.toLowerCase()}.`
+      : null;
+
+  // Warm the cache so the first colour change cross-fades instead of flashing.
+  useEffect(() => {
+    for (const src of Object.values(product.images ?? {})) {
+      const img = new window.Image();
+      img.src = src;
+    }
+  }, [product]);
 
   return (
     <div className="mx-auto w-full max-w-[1440px] px-5 md:px-10">
@@ -69,6 +84,23 @@ export function Configurator({ product }: { product: Product }) {
         <div className="flex items-start justify-center md:col-span-6 md:items-center lg:col-span-7">
           <div className="w-[50vw] max-w-[220px] md:w-[min(36vw,60vh)] md:max-w-[520px]">
             <ProductFigure product={product} config={config} sheen priority />
+            {/* Fixed height and absolutely placed, so the note never shifts the controls. */}
+            <motion.div exit={{ opacity: 0, transition: { duration: 0.2 } }} className="relative mt-2.5 h-4 md:mt-4">
+              <AnimatePresence mode="wait" initial={false}>
+                {textureNote && (
+                  <motion.p
+                    key={textureNote}
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.4, ease: EASE }}
+                    className="absolute left-1/2 top-0 -translate-x-1/2 whitespace-nowrap text-[11px] leading-4 text-ink/50 md:text-[12px]"
+                  >
+                    {textureNote}
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </motion.div>
           </div>
         </div>
 

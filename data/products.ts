@@ -1,10 +1,11 @@
 /**
  * Oriki Hair — product catalogue and pricing.
  *
- * Everything the storefront knows about a wig lives here. To use real
- * photography for a unit, set its `image` field to a path under /public
- * (e.g. "/products/adunni.jpg") and <ProductVisual> will render the photo
- * instead of the procedural <WigArt>. No other code changes are needed.
+ * Everything the storefront knows about a wig lives here. Real photography
+ * is wired through each product's `images` map (colour → path under /public).
+ * When the selected colour has a photo, <ProductVisual> shows it; otherwise
+ * it falls back to the procedural <WigArt>. No other code changes are needed.
+ * Photos are produced by scripts/process_photos.py.
  */
 
 export type LengthInches = 12 | 16 | 20 | 24 | 30;
@@ -41,8 +42,10 @@ export interface Product {
   seed: number;
   parting: Parting;
   defaults: WigConfig;
-  /** Optional product photo. When present it replaces the drawn wig. */
-  image?: string;
+  /** Product photos by colour. A missing colour falls back to the drawn wig. */
+  images?: Partial<Record<ColourId, string>>;
+  /** The texture the photos show — the configurator says so when another is chosen. */
+  photoTexture?: TextureId;
 }
 
 export interface LengthOption {
@@ -133,9 +136,25 @@ export const CAP_SIZES: CapOption[] = [
   { value: "large", label: "Large", short: "L", circumference: '23–23.5"' },
 ];
 
+const COLOUR_IDS: ColourId[] = [
+  "natural-black",
+  "dark-brown",
+  "honey-blonde",
+  "burgundy",
+  "copper",
+  "ash-grey",
+];
+
+/** All six colourways exported by scripts/process_photos.py for a product. */
+function photoSet(slug: string): Record<ColourId, string> {
+  return Object.fromEntries(COLOUR_IDS.map((c) => [c, `/wigs/${slug}-${c}.webp`])) as Record<ColourId, string>;
+}
+
 export const products: Product[] = [
   {
     id: "ewa",
+    images: photoSet("ewa"),
+    photoTexture: "body-wave",
     name: "Ewa",
     tagline: "The everyday body wave",
     construction: "4×4 lace closure",
@@ -148,6 +167,8 @@ export const products: Product[] = [
   },
   {
     id: "ayomide",
+    images: photoSet("ayomide"),
+    photoTexture: "straight",
     name: "Ayomide",
     tagline: "Raw full lace, cut blunt",
     construction: "Full lace, raw Vietnamese hair",
@@ -160,6 +181,8 @@ export const products: Product[] = [
   },
   {
     id: "adunni",
+    images: photoSet("adunni"),
+    photoTexture: "straight",
     name: "Adunni",
     tagline: "Bone straight, glass finish",
     construction: "13×4 HD lace frontal",
@@ -172,6 +195,8 @@ export const products: Product[] = [
   },
   {
     id: "morenike",
+    images: photoSet("morenike"),
+    photoTexture: "deep-wave",
     name: "Morenike",
     tagline: "Deep wave in wine",
     construction: "5×5 HD lace closure",
@@ -184,6 +209,8 @@ export const products: Product[] = [
   },
   {
     id: "folake",
+    images: photoSet("folake"),
+    photoTexture: "curly",
     name: "Folake",
     tagline: "Copper curls, glueless",
     construction: "Glueless 6×6 lace closure",
@@ -196,6 +223,8 @@ export const products: Product[] = [
   },
   {
     id: "titilayo",
+    images: photoSet("titilayo"),
+    photoTexture: "body-wave",
     name: "Titilayo",
     tagline: "Honey, worn long",
     construction: "13×6 HD lace frontal",
